@@ -67,7 +67,7 @@ if ($return_val == 0) {
 }
 else { $input_errors[] = sprintf(gettext("Archive file %s not found, installation aborted!"), "master.zip"); }
 
-exit;   //********************************************************************************************************************************
+//exit;   //********************************************************************************************************************************
 
 // install application on server
 if ( !isset($config['rrdgraphs']) || !is_array($config['rrdgraphs'])) {
