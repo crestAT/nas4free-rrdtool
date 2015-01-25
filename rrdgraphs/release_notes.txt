@@ -1,0 +1,6 @@
+﻿Version Date        Description
+0.0.0   2015.01.18  first alpha
+
+N: ...  new feature
+C: ...  changes
+F: ...  bug fix
