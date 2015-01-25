@@ -1,6 +1,0 @@
-<?php
-/* 
-    rrd-install.php
-*/
-
-?>
