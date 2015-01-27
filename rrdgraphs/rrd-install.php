@@ -30,6 +30,7 @@
     either expressed or implied, of the FreeBSD Project.
 */
 
+$v = "v0.0.1";                          // extension version
 $appname = "RRDGraphs";
 
 require_once("config.inc");
@@ -50,8 +51,9 @@ if (isset($config['rrdgraphs']['rootfolder'])) { $install_dir = $config['rrdgrap
 $release = explode("-", exec("uname -r"));
 if ($release[0] >= 9.3) $verify_hostname = "--no-verify-hostname";
 else $verify_hostname = "";
-//@version 
-$return_val = mwexec("fetch {$verify_hostname} -vo {$install_dir}master.zip 'https://github.com/crestAT/nas4free-rrdtool/releases/download/v0.0.0/v001.zip'", true);
+// create stripped version name 
+$vs = str_replace(".", "", $v);
+$return_val = mwexec("fetch {$verify_hostname} -vo {$install_dir}master.zip 'https://github.com/crestAT/nas4free-rrdtool/releases/download/{$v}/rrdgraphs-{$vs}.zip'", true);
 if ($return_val == 0) {
     $return_val = mwexec("tar -xf {$install_dir}master.zip -C {$install_dir} --exclude='.git*' --strip-components 2", true);
     if ($return_val == 0) {
