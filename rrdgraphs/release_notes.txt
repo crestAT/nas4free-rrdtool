@@ -1,4 +1,5 @@
 ﻿Version Date        Description
+0.0.1   2015.01.27  F: Warnings during installation process
 0.0.0   2015.01.18  first alpha
 
 N: ...  new feature

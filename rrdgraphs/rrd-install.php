@@ -55,7 +55,7 @@ else $verify_hostname = "";
  
 $return_val = mwexec("fetch {$verify_hostname} -vo {$install_dir}master.zip 'https://github.com/crestAT/nas4free-rrdtool/releases/download/v0.0.0/v000.zip'", true);
 if ($return_val == 0) {
-    $return_val = mwexec("tar -xf {$install_dir}master.zip -C {$install_dir} --exclude='.git*' --strip-components 1", true);
+    $return_val = mwexec("tar -xf {$install_dir}master.zip -C {$install_dir} --exclude='.git*' --strip-components 2", true);
     if ($return_val == 0) {
         exec("rm {$install_dir}master.zip");
         exec("chmod -R 775 {$install_dir}");
@@ -95,9 +95,9 @@ if ( !isset($config['rrdgraphs']) || !is_array($config['rrdgraphs'])) {
             if (preg_match('/rrdgraphs/', $config['rc']['shutdown']['cmd'][$i])) break; ++$i; }
     }
     $config['rc']['shutdown']['cmd'][$i] = $config['rrdgraphs']['rootfolder']."rrd_stop.php";
-    if (!is_dir ($config['rrdgraphs']['rootfolder'].'rrd')) { exec ("mkdir -p ".$config['rrdgraphs']['rootfolder'].'rrd'); }
-    if (!is_dir ($config['rrdgraphs']['backupfolder'])) { exec ("mkdir -p ".$config['rrdgraphs']['backupfolder']); }
-    if (!is_dir ($config['rrdgraphs']['updatefolder'])) { exec ("mkdir -p ".$config['rrdgraphs']['updatefolder']); }
+    if (!is_dir("{$config['rrdgraphs']['rootfolder']}rrd")) { mkdir("{$config['rrdgraphs']['rootfolder']}rrd", 0775); }
+    if (!is_dir("{$config['rrdgraphs']['backupfolder']}")) { mkdir("{$config['rrdgraphs']['backupfolder']}", 0775); }
+    if (!is_dir("{$config['rrdgraphs']['updatefolder']}")) { mkdir("{$config['rrdgraphs']['updatefolder']}", 0775); }
     write_config();
     require_once("{$config['rrdgraphs']['rootfolder']}rrd-start.php");
     echo "\n".$appname." Version ".$config['rrdgraphs']['version']." installed";
