@@ -29,8 +29,6 @@
     of the authors and should not be interpreted as representing official policies,
     either expressed or implied, of the FreeBSD Project.
 */
-// Version Date        Description
-// 0.0.0   2015.01.18  first alpha
 
 $appname = "RRDGraphs";
 
@@ -52,8 +50,8 @@ if (isset($config['rrdgraphs']['rootfolder'])) { $install_dir = $config['rrdgrap
 $release = explode("-", exec("uname -r"));
 if ($release[0] >= 9.3) $verify_hostname = "--no-verify-hostname";
 else $verify_hostname = "";
- 
-$return_val = mwexec("fetch {$verify_hostname} -vo {$install_dir}master.zip 'https://github.com/crestAT/nas4free-rrdtool/releases/download/v0.0.0/v000.zip'", true);
+//@version 
+$return_val = mwexec("fetch {$verify_hostname} -vo {$install_dir}master.zip 'https://github.com/crestAT/nas4free-rrdtool/releases/download/v0.0.0/v001.zip'", true);
 if ($return_val == 0) {
     $return_val = mwexec("tar -xf {$install_dir}master.zip -C {$install_dir} --exclude='.git*' --strip-components 2", true);
     if ($return_val == 0) {
