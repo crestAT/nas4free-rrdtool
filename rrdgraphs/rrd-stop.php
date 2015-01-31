@@ -38,7 +38,8 @@ require_once("{$config['rrdgraphs']['rootfolder']}ext/rrdgraphs_fcopy.inc");
 // restore original files by shutdown
 copy_backup2origin($files, $backup_path, $extend_path);
 // save graphs
-exec ("cp -R {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/* {$config['rrdgraphs']['rootfolder']}rrd/");
+exec ("cp -R {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/*.rrd {$config['rrdgraphs']['rootfolder']}rrd/");
 // cleanup links
 exec ("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-unlink.sh");
+exec("logger rrdgraphs: stopped");
 ?>
