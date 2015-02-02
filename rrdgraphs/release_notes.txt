@@ -1,4 +1,7 @@
 ﻿Version Date        Description
+0.0.5   2015.02.02  N: dynamic network interface configuration
+                    N: selectable graphs height
+                    F: update command working path for cron job
 0.0.4   2015.01.31  C: amendments in configuration page
 0.0.1   2015.01.27  F: Warnings during installation process
 0.0.0   2015.01.18  first alpha

@@ -40,6 +40,6 @@ copy_backup2origin($files, $backup_path, $extend_path);
 // save graphs
 exec ("cp -R {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/*.rrd {$config['rrdgraphs']['rootfolder']}rrd/");
 // cleanup links
-exec ("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-unlink.sh");
+mwexec ("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-unlink.sh", false);
 exec("logger rrdgraphs: stopped");
 ?>

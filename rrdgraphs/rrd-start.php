@@ -73,7 +73,7 @@ if (isset($config['rrdgraphs']['enable'])) {
 // cp scripts to work path
     exec ("cp {$config['rrdgraphs']['rootfolder']}bin/*.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/");
 // create links to work path
-    exec ("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link.sh");
+    mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link.sh", true);
 
 // create new .rrds if necessary
     $rrd_name = "cpu_freq.rrd";
@@ -116,27 +116,45 @@ if (isset($config['rrdgraphs']['enable'])) {
     ", true);
     exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
-    $rrd_name = "em0.rrd";
-    if (isset($config['rrdgraphs']['lan_load']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
-    { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
-			'-s 300' \
-			'DS:in:DERIVE:600:0:12500000' \
-			'DS:out:DERIVE:600:0:12500000' \
-			'RRA:AVERAGE:0.5:1:576' \
-			'RRA:AVERAGE:0.5:6:672' \
-			'RRA:AVERAGE:0.5:24:732' \
-			'RRA:AVERAGE:0.5:144:1460'
-    ", true);
-    exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+    if (isset($config['rrdgraphs']['lan_load'])) {
+        $rrd_name = "{$config['interfaces']['lan']['if']}.rrd";
+        if (!is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}")) { 
+            mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+    			'-s 300' \
+    			'DS:in:DERIVE:600:0:12500000' \
+    			'DS:out:DERIVE:600:0:12500000' \
+    			'RRA:AVERAGE:0.5:1:576' \
+    			'RRA:AVERAGE:0.5:6:672' \
+    			'RRA:AVERAGE:0.5:24:732' \
+    			'RRA:AVERAGE:0.5:144:1460'
+            ", true);
+            exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+        }
+        for ($j = 1; isset($config['interfaces']['opt' . $j]); $j++) {
+        	$if = $config['interfaces']['opt' . $j]['if'];
+            $rrd_name = "{$if}.rrd";
+            if (!is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}")) {
+                mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+        			'-s 300' \
+        			'DS:in:DERIVE:600:0:12500000' \
+        			'DS:out:DERIVE:600:0:12500000' \
+        			'RRA:AVERAGE:0.5:1:576' \
+        			'RRA:AVERAGE:0.5:6:672' \
+        			'RRA:AVERAGE:0.5:24:732' \
+        			'RRA:AVERAGE:0.5:144:1460'
+                ", true);
+                exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+            }
+        }
     }
 
 // cp graphs to work path
     if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd", 0775, true); } 
     exec ("cp -R {$config['rrdgraphs']['rootfolder']}rrd/*.rrd {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/");  
 // create new graphs
-    exec ("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-graph.sh");
+    mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-graph.sh", true);
 // create graph links
-    exec ("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link_png.sh");
+    mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link_png.sh", true);
 }
 else { copy_backup2origin ($files, $backup_path, $extend_path); }           // case extension not enabled at start restore original files
 ?>
