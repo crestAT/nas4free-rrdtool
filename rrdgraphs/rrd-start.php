@@ -117,7 +117,7 @@ if (isset($config['rrdgraphs']['enable'])) {
     exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
     if (isset($config['rrdgraphs']['lan_load'])) {
-        $rrd_name = "{$config['interfaces']['lan']['if']}.rrd";
+        $rrd_name = get_ifname($config['interfaces']['lan']['if']).".rrd";
         if (!is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}")) { 
             mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
     			'-s 300' \
