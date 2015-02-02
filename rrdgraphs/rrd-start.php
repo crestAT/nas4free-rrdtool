@@ -41,7 +41,6 @@ if ($saved != $current) {
     exec ("logger rrdgraphs: Saved Release: $saved New Release: $current - new backup of standard GUI files!");
     copy_origin2backup($files, $backup_path, $extend_path);
  	$config['rrdgraphs']['product_version'] = $current;
-	write_config();
 }
 else exec ("logger rrdgraphs: saved and current GUI files are identical - OK");
 
@@ -49,9 +48,9 @@ if (is_file("{$config['rrdgraphs']['rootfolder']}version.txt")) {
     $file_version = exec("cat {$config['rrdgraphs']['rootfolder']}version.txt");
     if ($config['rrdgraphs']['version'] != $file_version) {
         $config['rrdgraphs']['version'] = $file_version;
-        write_config();
     }
 }
+write_config();
 
 if (!is_dir('/usr/local/www/ext/rrdgraphs')) { exec ("mkdir -p /usr/local/www/ext/rrdgraphs"); }        // check for extension directory, links and cp ...
 mwexec("cp {$config['rrdgraphs']['rootfolder']}ext/* /usr/local/www/ext/rrdgraphs/", true);
@@ -117,7 +116,9 @@ if (isset($config['rrdgraphs']['enable'])) {
     exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
     if (isset($config['rrdgraphs']['lan_load'])) {
-        $rrd_name = get_ifname($config['interfaces']['lan']['if']).".rrd";
+        $config['rrdgraphs']['lan_if'] = get_ifname($config['interfaces']['lan']['if']);    // for 'auto' if name 
+        write_config();
+        $rrd_name = "{$config['rrdgraphs']['lan_if']}.rrd";
         if (!is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}")) { 
             mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
     			'-s 300' \
