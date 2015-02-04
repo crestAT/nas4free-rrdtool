@@ -11,7 +11,6 @@ $dirname = dirname(__FILE__);
 if (!is_dir("{$dirname}/rrdgraphs/backup")) { mkdir("{$dirname}/rrdgraphs/backup", 0775, true); }
 if (!is_dir("{$dirname}/rrdgraphs/update")) { mkdir("{$dirname}/rrdgraphs/update", 0775, true); }
 $return_val = mwexec("fetch {$verify_hostname} -vo {$dirname}/rrdgraphs/rrd-install.php 'https://raw.github.com/crestAT/nas4free-rrdtool/master/rrdgraphs/rrd-install.php'", true);
-#$return_val=0;
 if ($return_val == 0) { 
     chmod("{$dirname}/rrdgraphs/rrd-install.php", 0775);
     require_once("{$dirname}/rrdgraphs/rrd-install.php"); 

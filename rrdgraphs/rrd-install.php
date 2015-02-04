@@ -30,7 +30,7 @@
     either expressed or implied, of the FreeBSD Project.
 */
 
-$v = "v0.0.6";                          // extension version
+$v = "v0.1";                          // extension version
 $appname = "RRDGraphs";
 
 require_once("config.inc");
@@ -66,8 +66,6 @@ if ($return_val == 0) {
     else { $input_errors[] = sprintf(gettext("Archive file %s not found, installation aborted!"), "master.zip corrupt /"); }
 }
 else { $input_errors[] = sprintf(gettext("Archive file %s not found, installation aborted!"), "master.zip"); }
-
-//exit;   //********************************************************************************************************************************
 
 // install application on server
 if ( !isset($config['rrdgraphs']) || !is_array($config['rrdgraphs'])) {
