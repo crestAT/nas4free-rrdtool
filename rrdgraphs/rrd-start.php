@@ -35,6 +35,12 @@ require_once("install.inc");
 require_once("util.inc");
 require_once("{$config['rrdgraphs']['rootfolder']}ext/rrdgraphs_fcopy.inc");
 
+//@v02: one-time backup of stock graphs for new color definitions
+if (!is_file("{$config['rrdgraphs']['backupfolder']}graph.php")) {
+    copy("/usr/local/www/graph.php", "{$config['rrdgraphs']['backupfolder']}graph.php");
+    copy("/usr/local/www/graph_cpu.php", "{$config['rrdgraphs']['backupfolder']}graph_cpu.php");
+}
+
 $saved = $config['rrdgraphs']['product_version'];
 $current = get_product_version().'-'.get_product_revision();
 if ($saved != $current) {
@@ -62,6 +68,11 @@ if (isset($config['rrdgraphs']['enable'])) {
     mwexec("cp {$config['rrdgraphs']['rootfolder']}files/* /usr/local/www/", true);
 // exchange originals files with changed ...
     copy_extended2origin($files, $backup_path, $extend_path);                                            
+// if isset background_black use originial colors for stock graphs  
+    if (isset($config['rrdgraphs']['background_black'])) {
+        copy("{$config['rrdgraphs']['backupfolder']}graph.php", "/usr/local/www/graph.php");
+        copy("{$config['rrdgraphs']['backupfolder']}graph_cpu.php", "/usr/local/www/graph_cpu.php");
+    }
 // cp locales to work path
     if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/locale-rrd")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/locale-rrd", 0775, true); }
     exec ("cp -R {$config['rrdgraphs']['rootfolder']}locale-rrd/* {$config['rrdgraphs']['storage_path']}rrdgraphs/locale-rrd/");
@@ -71,6 +82,9 @@ if (isset($config['rrdgraphs']['enable'])) {
     exec ("cp -R {$config['rrdgraphs']['rootfolder']}bin/{$config['rrdgraphs']['architecture']}/* {$config['rrdgraphs']['storage_path']}rrdgraphs/bin/");
 // cp scripts to work path
     exec ("cp {$config['rrdgraphs']['rootfolder']}bin/*.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/");
+// cp templates to work path
+    if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/templates")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/templates", 0775, true); }
+    exec ("cp {$config['rrdgraphs']['rootfolder']}bin/templates/* {$config['rrdgraphs']['storage_path']}rrdgraphs/templates/");
 // create links to work path
     mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link.sh", true);
 
@@ -116,8 +130,6 @@ if (isset($config['rrdgraphs']['enable'])) {
     exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
     if (isset($config['rrdgraphs']['lan_load'])) {
-        $config['rrdgraphs']['lan_if'] = get_ifname($config['interfaces']['lan']['if']);    // for 'auto' if name 
-        write_config();
         $rrd_name = "{$config['rrdgraphs']['lan_if']}.rrd";
         if (!is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}")) { 
             mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
@@ -147,6 +159,59 @@ if (isset($config['rrdgraphs']['enable'])) {
                 exec("logger rrdgraphs: new rrd created: {$rrd_name}");
             }
         }
+    }
+    $rrd_name = "cpu.rrd";
+    if (isset($config['rrdgraphs']['cpu_usage']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
+    { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+			'-s 300' \
+            'DS:user:GAUGE:600:U:U' \
+            'DS:nice:GAUGE:600:U:U' \
+            'DS:system:GAUGE:600:U:U' \
+            'DS:interrupt:GAUGE:600:U:U' \
+            'DS:idle:GAUGE:600:U:U' \
+            'RRA:AVERAGE:0.5:1:576' \
+            'RRA:AVERAGE:0.5:6:672' \
+            'RRA:AVERAGE:0.5:24:732' \
+            'RRA:AVERAGE:0.5:144:1460'
+    ", true);
+    exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+    }
+    $rrd_name = "memory.rrd";
+    if (isset($config['rrdgraphs']['memory_usage']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
+    { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+			'-s 300' \
+            'DS:active:GAUGE:600:U:U' \
+            'DS:inact:GAUGE:600:U:U' \
+            'DS:wired:GAUGE:600:U:U' \
+            'DS:cache:GAUGE:600:U:U' \
+            'DS:buf:GAUGE:600:U:U' \
+            'DS:free:GAUGE:600:U:U' \
+            'DS:total:GAUGE:600:U:U' \
+            'DS:used:GAUGE:600:U:U' \
+            'RRA:AVERAGE:0.5:1:576' \
+            'RRA:AVERAGE:0.5:6:672' \
+            'RRA:AVERAGE:0.5:24:732' \
+            'RRA:AVERAGE:0.5:144:1460'
+    ", true);
+    exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+    }
+    $rrd_name = "processes.rrd";
+    if (isset($config['rrdgraphs']['no_processes']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
+    { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+			'-s 300' \
+            'DS:total:GAUGE:600:U:U' \
+            'DS:running:GAUGE:600:U:U' \
+            'DS:sleeping:GAUGE:600:U:U' \
+            'DS:waiting:GAUGE:600:U:U' \
+            'DS:starting:GAUGE:600:U:U' \
+            'DS:stopped:GAUGE:600:U:U' \
+            'DS:zombie:GAUGE:600:U:U' \
+            'RRA:AVERAGE:0.5:1:576' \
+            'RRA:AVERAGE:0.5:6:672' \
+            'RRA:AVERAGE:0.5:24:732' \
+            'RRA:AVERAGE:0.5:144:1460'
+    ", true);
+    exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
 
 // cp graphs to work path

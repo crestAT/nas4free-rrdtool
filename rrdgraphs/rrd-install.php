@@ -30,7 +30,7 @@
     either expressed or implied, of the FreeBSD Project.
 */
 
-$v = "v0.1";                          // extension version
+$v = "v0.2";                          // extension version
 $appname = "RRDGraphs";
 
 require_once("config.inc");

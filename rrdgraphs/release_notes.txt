@@ -1,4 +1,17 @@
 ﻿Version Date        Description
+0.2     2015.03.03  N: refresh time for graph pages selectable
+                    N: white background for stock graphs (System load, CPU load)
+                    N: uniform background selectable (black, white) for all graphs including stock graphs
+                    N: logarithmic y-axis scaling for Network traffic graphs
+                    N: Y-axis range - positive/negative values for Network traffic graphs (Incoming, Outgoing)
+                    N: Processes graph
+                    N: CPU usage graph
+                    N: two Memory usage graphs (Standard and Detailed) including swap usage
+                    C: updated Greek translation
+                    C: updated French translation
+                    C: updated Russian translation
+                    C: updated German translation
+                    C: code/runtime optimizations (page cache, config file, templates, graph creation on GUI page call, ...)
 0.1     2015.02.04  first public release
 
 N: ...  new feature
