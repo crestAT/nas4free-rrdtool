@@ -56,7 +56,7 @@ if (is_file("{$config['rrdgraphs']['rootfolder']}version.txt")) {
         $config['rrdgraphs']['version'] = $file_version;
     }
 }
-write_config();
+// write_config();
 
 if (!is_dir('/usr/local/www/ext/rrdgraphs')) { exec ("mkdir -p /usr/local/www/ext/rrdgraphs"); }        // check for extension directory, links and cp ...
 mwexec("cp {$config['rrdgraphs']['rootfolder']}ext/* /usr/local/www/ext/rrdgraphs/", true);
@@ -195,6 +195,23 @@ if (isset($config['rrdgraphs']['enable'])) {
     ", true);
     exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
+    $rrd_name = "arc.rrd";
+    if (isset($config['rrdgraphs']['arc_usage']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
+    { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+			'-s 300' \
+            'DS:Total:GAUGE:600:U:U' \
+            'DS:MFU:GAUGE:600:U:U' \
+            'DS:MRU:GAUGE:600:U:U' \
+            'DS:Anon:GAUGE:600:U:U' \
+            'DS:Header:GAUGE:600:U:U' \
+            'DS:Other:GAUGE:600:U:U' \
+            'RRA:AVERAGE:0.5:1:576' \
+            'RRA:AVERAGE:0.5:6:672' \
+            'RRA:AVERAGE:0.5:24:732' \
+            'RRA:AVERAGE:0.5:144:1460'
+    ", true);
+    exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+    }
     $rrd_name = "processes.rrd";
     if (isset($config['rrdgraphs']['no_processes']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
     { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
@@ -213,7 +230,93 @@ if (isset($config['rrdgraphs']['enable'])) {
     ", true);
     exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
+    $rrd_name = "ups.rrd";
+    if (isset($config['rrdgraphs']['ups']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
+    { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+			'-s 300' \
+            'DS:charge:GAUGE:600:U:U' \
+            'DS:load:GAUGE:600:U:U' \
+            'DS:bvoltage:GAUGE:600:U:U' \
+            'DS:ivoltage:GAUGE:600:U:U' \
+            'DS:runtime:GAUGE:600:U:U' \
+            'DS:OL:GAUGE:600:U:U' \
+            'DS:OF:GAUGE:600:U:U' \
+            'DS:OB:GAUGE:600:U:U' \
+            'DS:CG:GAUGE:600:U:U' \
+            'RRA:AVERAGE:0.5:1:576' \
+            'RRA:AVERAGE:0.5:6:672' \
+            'RRA:AVERAGE:0.5:24:732' \
+            'RRA:AVERAGE:0.5:144:1460'
+    ", true);
+    exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+    }
+    $rrd_name = "latency.rrd";
+    if (isset($config['rrdgraphs']['latency']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
+    { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+			'-s 300' \
+            'DS:min:GAUGE:600:U:U' \
+            'DS:avg:GAUGE:600:U:U' \
+            'DS:max:GAUGE:600:U:U' \
+            'DS:stddev:GAUGE:600:U:U' \
+            'RRA:AVERAGE:0.5:1:576' \
+            'RRA:AVERAGE:0.5:6:672' \
+            'RRA:AVERAGE:0.5:24:732' \
+            'RRA:AVERAGE:0.5:144:1460'
+    ", true);
+    exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+    }
+    $rrd_name = "uptime.rrd";
+    if (isset($config['rrdgraphs']['uptime']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
+    { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
+			'-s 300' \
+            'DS:uptime:GAUGE:600:U:U' \
+            'RRA:AVERAGE:0.5:1:576' \
+            'RRA:AVERAGE:0.5:6:672' \
+            'RRA:AVERAGE:0.5:24:732' \
+            'RRA:AVERAGE:0.5:144:1460'
+    ", true);
+    exec("logger rrdgraphs: new rrd created: {$rrd_name}");
+    }
+    if (isset($config['rrdgraphs']['disk_usage'])) {
+        unset($config["rrdgraphs"]["mounts"]);
+        $config["rrdgraphs"]["mounts"] = array();
+        unset($config["rrdgraphs"]["pools"]);
+        $config["rrdgraphs"]["pools"] = array();
+        
+        $rrdconfig = fopen("{$config['rrdgraphs']['rootfolder']}bin/CONFIG.sh", "a");
+        if (is_array($config['mounts']) && is_array($config['mounts']['mount'])) {
+            for ($i = 0; $i < count($config['mounts']['mount']); ++$i) {
+                $config["rrdgraphs"]["mounts"]["mount{$i}"] = $config['mounts']['mount'][$i]['sharename']; 
+                fwrite($rrdconfig, "MOUNT{$i}={$config['mounts']['mount'][$i]['sharename']}"."\n");
+            }
+        }
+        if (is_array($config['zfs']['pools']) && is_array($config['zfs']['pools']['pool'])) {
+            for ($i = 0; $i < count($config['zfs']['pools']['pool']); ++$i) {
+                $config["rrdgraphs"]["pools"]["pool{$i}"] = $config['zfs']['pools']['pool'][$i]['name'];
+                fwrite($rrdconfig, "POOL{$i}={$config['zfs']['pools']['pool'][$i]['name']}"."\n");
+            }
+        }
+        fclose($rrdconfig);
+        
+        $temp_array = array_merge($config["rrdgraphs"]["mounts"], $config["rrdgraphs"]["pools"]);
+        foreach ($temp_array as $retval) {
+            if (!is_file("{$config['rrdgraphs']['rootfolder']}rrd/mnt_{$retval}.rrd"))
+            { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/mnt_{$retval}.rrd \
+                '-s 300' \
+                'DS:Used:GAUGE:600:U:U' \
+                'DS:Free:GAUGE:600:U:U' \
+                'RRA:AVERAGE:0.5:1:576' \
+                'RRA:AVERAGE:0.5:6:672' \
+                'RRA:AVERAGE:0.5:24:732' \
+                'RRA:AVERAGE:0.5:144:1460'
+            ", true);
+            exec("logger rrdgraphs: new rrd created: mnt_{$retval}.rrd");
+            }
+        }
+    }
 
+// cp CONFIG.sh to work path
+    exec ("cp {$config['rrdgraphs']['rootfolder']}bin/CONFIG.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/");
 // cp graphs to work path
     if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd", 0775, true); } 
     exec ("cp -R {$config['rrdgraphs']['rootfolder']}rrd/*.rrd {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/");  
@@ -223,4 +326,5 @@ if (isset($config['rrdgraphs']['enable'])) {
     mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link_png.sh", true);
 }
 else { copy_backup2origin ($files, $backup_path, $extend_path); }           // case extension not enabled at start restore original files
+write_config();
 ?>

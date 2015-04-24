@@ -1,4 +1,17 @@
 ﻿Version Date        Description
+0.3     2015.04.21  N: Disk space usage graph
+                    N: Network latency graph
+                    N: System uptime graph
+                    N: UPS graph
+                    N: ZFS ARC usage graph
+                    N: Network traffic switch to display traffic either in bits/s or bytes/s
+                    N: Spanish translation
+                    C: updated French translation
+                    C: updated Greek translation
+                    C: updated Russian translation
+                    C: updated German translation
+                    C: STATUS | GRAPH | System load & CPU load - take an installed Extended GUI extension into account
+                    F: missing link for graphs fonts for 9.3.0.2 - Nayla (Revision 1391)
 0.2     2015.03.03  N: refresh time for graph pages selectable
                     N: white background for stock graphs (System load, CPU load)
                     N: uniform background selectable (black, white) for all graphs including stock graphs
