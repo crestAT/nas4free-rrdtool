@@ -107,6 +107,7 @@ if ( is_array($config['rc']['shutdown'] ) && is_array( $config['rc']['shutdown']
         if (preg_match('/rrdgraphs/', $config['rc']['shutdown']['cmd'][$i])) break; ++$i; }
 }
 $config['rc']['shutdown']['cmd'][$i] = $rrdgraphs['rootfolder']."rrd_stop.php";
+if (is_link("/usr/local/share/locale-rrd")) unlink("/usr/local/share/locale-rrd");
 
 // install application on server
 if ( !isset($config['rrdgraphs']) || !is_array($config['rrdgraphs'])) {
