@@ -44,7 +44,7 @@ require_once("util.inc");
 require_once("{$config['rrdgraphs']['rootfolder']}ext/rrdgraphs_fcopy.inc");
 
 // restore original files by shutdown
-rrd_copy_backup2origin($files, $backup_path, $extend_path);
+copy_backup2origin($files, $backup_path, $extend_path);
 // save graphs
 mwexec("cp -p {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/*.rrd {$config['rrdgraphs']['rootfolder']}rrd/", false);
 // cleanup links

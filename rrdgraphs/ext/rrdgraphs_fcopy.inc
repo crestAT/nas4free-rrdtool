@@ -50,7 +50,7 @@ $files = array(
 $backup_path = $config['rrdgraphs']['rootfolder']."backup/";
 $extend_path = $config['rrdgraphs']['rootfolder']."files/";
 
-function rrd_copy_origin2backup ($files, $backup_path, $extend_path) {
+function copy_origin2backup ($files, $backup_path, $extend_path) {
     foreach ($files as $file) {
         if (is_file($file[1].$file[0])) {
             if (! copy($file[1].$file[0], $backup_path.$file[0])) {
@@ -62,7 +62,7 @@ function rrd_copy_origin2backup ($files, $backup_path, $extend_path) {
     return $error_msg;
 }                                                                              
 
-function rrd_copy_backup2origin ($files, $backup_path, $extend_path) {
+function copy_backup2origin ($files, $backup_path, $extend_path) {
     foreach ($files as $file) {
         if (is_file($backup_path.$file[0])) {
             if (! copy($backup_path.$file[0], $file[1].$file[0])) {
@@ -74,7 +74,7 @@ function rrd_copy_backup2origin ($files, $backup_path, $extend_path) {
     return $error_msg;
 }
 
-function rrd_copy_extended2origin ($files, $backup_path, $extend_path) {
+function copy_extended2origin ($files, $backup_path, $extend_path) {
     foreach ($files as $file) {
         if (! copy($extend_path.$file[0], $file[1].$file[0])) {
             $msg="failed to copy $file[0] from $extend_path to $file[1]"; 

@@ -41,7 +41,7 @@ require_once("config.inc");
 require_once("functions.inc");
 require_once("install.inc");
 require_once("util.inc");
-require("{$config['rrdgraphs']['rootfolder']}ext/rrdgraphs_fcopy.inc");
+require_once("{$config['rrdgraphs']['rootfolder']}ext/rrdgraphs_fcopy.inc");
 
 //@v02: one-time backup of stock graphs for new color definitions
 if (!is_file("{$config['rrdgraphs']['backupfolder']}graph.php")) {
@@ -53,7 +53,7 @@ $saved = $config['rrdgraphs']['product_version'];
 $current = get_product_version().'-'.get_product_revision();
 if ($saved != $current) {
     exec ("logger rrdgraphs: Saved Release: $saved New Release: $current - new backup of standard GUI files!");
-    rrd_copy_origin2backup($files, $backup_path, $extend_path);
+    copy_origin2backup($files, $backup_path, $extend_path);
  	$config['rrdgraphs']['product_version'] = $current;
 }
 else exec ("logger rrdgraphs: saved and current GUI files are identical - OK");
@@ -79,7 +79,7 @@ if (isset($config['rrdgraphs']['enable'])) {
     exec("logger rrdgraphs: enabled, starting ...");
     mwexec("cp {$config['rrdgraphs']['rootfolder']}files/* /usr/local/www/", true);
 // exchange originals files with changed ...
-    rrd_copy_extended2origin($files, $backup_path, $extend_path);                                            
+    copy_extended2origin($files, $backup_path, $extend_path);                                            
 // if isset background_black use originial colors for stock graphs  
     if (isset($config['rrdgraphs']['background_black'])) {
         copy("{$config['rrdgraphs']['backupfolder']}graph.php", "/usr/local/www/graph.php");
@@ -391,6 +391,6 @@ if (isset($config['rrdgraphs']['enable'])) {
 // create graph links
     mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link_png.sh", true);
 }
-else { rrd_copy_backup2origin ($files, $backup_path, $extend_path); }           // case extension not enabled at start restore original files
+else { copy_backup2origin ($files, $backup_path, $extend_path); }           // case extension not enabled at start restore original files
 write_config();
 ?>
