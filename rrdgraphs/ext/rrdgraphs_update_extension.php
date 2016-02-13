@@ -76,6 +76,8 @@ function cronjob_process_updatenotification($mode, $data) {
 }
 
 if (isset($_POST['ext_remove']) && $_POST['ext_remove']) {
+// restore original pages
+    require_once("{$config['rrdgraphs']['rootfolder']}rrd-stop.php");
 // remove start/stop commands
     if ( is_array($config['rc']['postinit'] ) && is_array( $config['rc']['postinit']['cmd'] ) ) {
 		for ($i = 0; $i < count($config['rc']['postinit']['cmd']);) {
@@ -91,18 +93,18 @@ if (isset($_POST['ext_remove']) && $_POST['ext_remove']) {
 	}
 // unlink created links and remove extension pages
 	if (is_dir ("/usr/local/www/ext/rrdgraphs")) {
-	foreach ( glob( "{$config['rrdgraphs']['rootfolder']}ext/*.php" ) as $file ) {
-	$file = str_replace("{$config['rrdgraphs']['rootfolder']}ext/", "/usr/local/www/", $file);         // trailing backslash !!!
-	if ( is_link( $file ) ) { unlink( $file ); } else {} }
-	mwexec ("rm -rf /usr/local/www/ext/rrdgraphs");
+    	foreach ( glob( "{$config['rrdgraphs']['rootfolder']}ext/*.php" ) as $file ) {
+        	$file = str_replace("{$config['rrdgraphs']['rootfolder']}ext/", "/usr/local/www/", $file);         // trailing backslash !!!
+        	if (is_link($file)) unlink($file); 
+        }
+    	mwexec ("rm -rf /usr/local/www/ext/rrdgraphs");
 	}
+    if (is_link("/usr/local/share/locale-rrd")) unlink("/usr/local/share/locale-rrd");
 // remove additional *.php files
 	foreach ( glob( "{$config['rrdgraphs']['rootfolder']}files/*.php" ) as $file ) {
-	   $file = str_replace("{$config['rrdgraphs']['rootfolder']}files/", "/usr/local/www/", $file);    // trailing backslash !!!
-        if (is_file($file)) { unlink($file); } 
+        $file = str_replace("{$config['rrdgraphs']['rootfolder']}files/", "/usr/local/www/", $file);    // trailing backslash !!!
+        if (is_file($file)) unlink($file);
     }
-// restore original pages
-    require_once("{$config['rrdgraphs']['rootfolder']}rrd-stop.php");
 // remove work directory
 	if (is_dir ("{$config['rrdgraphs']['storage_path']}rrdgraphs")) {
     	mwexec ("rm -rf {$config['rrdgraphs']['storage_path']}rrdgraphs");

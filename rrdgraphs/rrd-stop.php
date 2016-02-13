@@ -49,6 +49,5 @@ rrd_copy_backup2origin($files, $backup_path, $extend_path);
 mwexec("cp -p {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/*.rrd {$config['rrdgraphs']['rootfolder']}rrd/", false);
 // cleanup links
 mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-unlink.sh", false);
-if (is_link("/usr/local/share/locale-rrd")) unlink("/usr/local/share/locale-rrd");
 exec("logger rrdgraphs: stopped");
 ?>
