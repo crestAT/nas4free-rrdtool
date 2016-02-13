@@ -1,5 +1,5 @@
 ﻿Version Date        Description
-0.3.2   2016.02.11  N: Romanian translation
+0.3.2   2016.02.13  N: Romanian translation
                     N: Dutch translation
                     C: minor bug fixes and GUI enhancements
                     F: fix installation directory when used with a backuped config file (config.xml)

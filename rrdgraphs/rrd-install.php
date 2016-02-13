@@ -38,7 +38,7 @@
 	either expressed or implied, of the NAS4Free Project.
 */
 
-$v = "v0.3.1.1";                          // extension version
+$v = "v0.3.2";                                  // extension version
 $appname = "RRDGraphs";
 
 require_once("config.inc");
