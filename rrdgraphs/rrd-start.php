@@ -1,6 +1,6 @@
 <?php
 /* 
-    rrd_start.php
+    rrd-start.php
 
     Copyright (c) 2015 - 2016 Andreas Schmidhuber, RRDTool portion by Snunn1
     All rights reserved.

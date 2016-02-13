@@ -143,9 +143,9 @@ if (isset($_POST['ext_update']) && $_POST['ext_update']) {
 // download installer & install
     $return_val = mwexec("fetch -vo {$config['rrdgraphs']['rootfolder']}rrd-install.php 'https://raw.github.com/crestAT/nas4free-rrdtool/master/rrdgraphs/rrd-install.php'", true);
     if ($return_val == 0) {
-//        require_once("{$config['rrdgraphs']['rootfolder']}rrd-stop.php");         // stop is execute in rrd-install now (v0.3.1.1)
+//        require_once("{$config['rrdgraphs']['rootfolder']}rrd-stop.php");         // stop is execute in rrd-install now (v0.3.2)
         require_once("{$config['rrdgraphs']['rootfolder']}rrd-install.php"); 
-        require_once("{$config['rrdgraphs']['rootfolder']}rrd-start.php");
+//        require_once("{$config['rrdgraphs']['rootfolder']}rrd-start.php");        // start is execute in rrd-install now (v0.3.2)
         header("Refresh:8");;
     }
     else { $input_errors[] = sprintf(gettext("Archive file %s not found, installation aborted!"), "{$config['rrdgraphs']['rootfolder']}rrd-install.php"); }
