@@ -144,6 +144,7 @@ if (isset($_POST['ext_update']) && $_POST['ext_update']) {
     $return_val = mwexec("fetch -vo {$config['rrdgraphs']['rootfolder']}rrd-install.php 'https://raw.github.com/crestAT/nas4free-rrdtool/master/rrdgraphs/rrd-install.php'", true);
     if ($return_val == 0) {
 //        require_once("{$config['rrdgraphs']['rootfolder']}rrd-stop.php");         // stop is execute in rrd-install now (v0.3.2)
+        if (is_link("/usr/local/share/locale-rrd")) unlink("/usr/local/share/locale-rrd");
         require_once("{$config['rrdgraphs']['rootfolder']}rrd-install.php"); 
 //        require_once("{$config['rrdgraphs']['rootfolder']}rrd-start.php");        // start is execute in rrd-install now (v0.3.2)
         header("Refresh:8");;

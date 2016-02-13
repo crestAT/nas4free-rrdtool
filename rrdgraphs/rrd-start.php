@@ -72,8 +72,6 @@ mwexec("cp {$config['rrdgraphs']['rootfolder']}ext/* /usr/local/www/ext/rrdgraph
 if (!is_link("/usr/local/www/rrdgraphs.php")) { exec ("ln -s /usr/local/www/ext/rrdgraphs/rrdgraphs.php /usr/local/www/rrdgraphs.php"); }
 if (!is_link("/usr/local/www/rrdgraphs_update_extension.php")) { exec ("ln -s /usr/local/www/ext/rrdgraphs/rrdgraphs_update_extension.php /usr/local/www/rrdgraphs_update_extension.php"); }
 if (!is_link("/usr/local/share/locale-rrd")) { exec("ln -s {$config['rrdgraphs']['rootfolder']}locale-rrd /usr/local/share/"); }
-//    if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/locale-rrd")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/locale-rrd", 0775, true); }
-//    exec ("cp -R {$config['rrdgraphs']['rootfolder']}locale-rrd/* {$config['rrdgraphs']['storage_path']}rrdgraphs/locale-rrd/");
 
 if (isset($config['rrdgraphs']['enable'])) { 
     exec("logger rrdgraphs: enabled, starting ...");
