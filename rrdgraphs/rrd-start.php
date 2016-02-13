@@ -41,7 +41,7 @@ require_once("config.inc");
 require_once("functions.inc");
 require_once("install.inc");
 require_once("util.inc");
-require_once("{$config['rrdgraphs']['rootfolder']}ext/rrdgraphs_fcopy.inc");
+require("{$config['rrdgraphs']['rootfolder']}ext/rrdgraphs_fcopy.inc");
 
 //@v02: one-time backup of stock graphs for new color definitions
 if (!is_file("{$config['rrdgraphs']['backupfolder']}graph.php")) {
