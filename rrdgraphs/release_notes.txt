@@ -1,4 +1,19 @@
 ﻿Version Date        Description
+0.3.3-b4 2016.09.06 N: Swedish translation
+                    N: support ZFS datasets -> http://forums.nas4free.org/viewtopic.php?f=71&t=8299&start=60#p65209
+                    N: enable ARM based appliances
+                    N: check for / use built-in RRDTool
+                    N: user defined setting: time resolution    => in progress
+                    N: user defined setting: zoom factor        => in progress
+                    N: user defined setting: autoscale          => in progress
+                    C: autoscale for graphs                     => in progress
+                    C: updated French translation
+                    C: updated Greek translation
+                    C: updated Russian translation
+                    C: updated Spanish translation
+                    C: Spinner color to system standard
+                    F: use locales in working directory to prevent disk spinning up (depends on working directory setting)
+                    F: Network traffic graph: not showing download traffic -> http://forums.nas4free.org/viewtopic.php?p=68679#p68679
 0.3.2   2016.02.13  N: Romanian translation
                     N: Dutch translation
                     C: minor bug fixes and GUI enhancements

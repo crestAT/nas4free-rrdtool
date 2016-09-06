@@ -6,11 +6,7 @@
     All rights reserved.
 
 	Portions of NAS4Free (http://www.nas4free.org).
-	Copyright (c) 2012-2015 The NAS4Free Project <info@nas4free.org>.
-	All rights reserved.
-
-	Portions of freenas (http://www.freenas.org).
-	Copyright (c) 2005-2011 by Olivier Cochard <olivier@freenas.org>.
+	Copyright (c) 2012-2016 The NAS4Free Project <info@nas4free.org>.
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -130,6 +126,8 @@ if (isset($_POST['save']) && $_POST['save']) {
             $_POST['graph_h'] = trim($_POST['graph_h']);  
             $config['rrdgraphs']['graph_h'] = !empty($_POST['graph_h']) ? $_POST['graph_h'] : 200;
             $config['rrdgraphs']['refresh_time'] = !empty($_POST['refresh_time']) ? $_POST['refresh_time'] : 300;
+            $config['rrdgraphs']['zoom_factor'] = !empty($_POST['zoom_factor']) ? str_replace(',', '.', $_POST['zoom_factor']) : 1;
+            $config['rrdgraphs']['autoscale'] = isset($_POST['autoscale']) ? true : false;
             $config['rrdgraphs']['background_black'] = isset($_POST['background_black']) ? true : false;
             $config['rrdgraphs']['bytes_per_second'] = isset($_POST['bytes_per_second']) ? true : false;
             $config['rrdgraphs']['logarithmic'] = isset($_POST['logarithmic']) ? true : false;
@@ -283,6 +281,8 @@ $pconfig['enable'] = isset($config['rrdgraphs']['enable']) ? true : false;
 $pconfig['storage_path'] = !empty($config['rrdgraphs']['storage_path']) ? $config['rrdgraphs']['storage_path'] : "/var/run/";
 $pconfig['graph_h'] = !empty($config['rrdgraphs']['graph_h']) ? $config['rrdgraphs']['graph_h'] : 200;
 $pconfig['refresh_time'] = !empty($config['rrdgraphs']['refresh_time']) ? $config['rrdgraphs']['refresh_time'] : 300;
+$pconfig['zoom_factor'] = !empty($config['rrdgraphs']['zoom_factor']) ? $config['rrdgraphs']['zoom_factor'] : 1;
+$pconfig['autoscale'] = isset($config['rrdgraphs']['autoscale']) ? true : false;
 $pconfig['background_black'] = isset($config['rrdgraphs']['background_black']) ? true : false;
 $pconfig['bytes_per_second'] = isset($config['rrdgraphs']['bytes_per_second']) ? true : false;
 $pconfig['logarithmic'] = isset($config['rrdgraphs']['logarithmic']) ? true : false;
@@ -324,6 +324,12 @@ if (isset($config['vinterfaces']['lagg']) && is_array($config['vinterfaces']['la
 
 // Use first interface as default if it is not set.
 if (empty($pconfig['latency_interface']) && is_array($a_interface)) $pconfig['latency_interface'] = key($a_interface);
+
+$return_val = mwexec("fetch -o {$config['rrdgraphs']['updatefolder']}version.txt https://raw.github.com/crestAT/nas4free-rrdtool/master/rrdgraphs/version.txt", false);
+if ($return_val == 0) {
+    $server_version = exec("cat {$config['rrdgraphs']['updatefolder']}version.txt");
+    if ($server_version != $config['rrdgraphs']['version']) { $savemsg = sprintf(gettext("New extension version %s available, push '%s' button to install the new version!"), $server_version, gettext("Maintenance")); }
+}   //EOversion-check
 
 bindtextdomain("nas4free", "/usr/local/share/locale");                  // to get the right main menu language
 include("fbegin.inc");
@@ -391,6 +397,8 @@ function enable_change(enable_change) {
 	document.iform.storage_pathbrowsebtn.disabled = endis;
 	document.iform.graph_h.disabled = endis;
 	document.iform.refresh_time.disabled = endis;
+	document.iform.zoom_factor.disabled = endis;
+	document.iform.autoscale.disabled = endis;
 	document.iform.background_black.disabled = endis;
 	document.iform.bytes_per_second.disabled = endis;
 	document.iform.logarithmic.disabled = endis;
@@ -421,7 +429,7 @@ function enable_change(enable_change) {
 	<tr><td class="tabnavtbl">
 		<ul id="tabnav">
 			<li class="tabact"><a href="rrdgraphs.php"><span><?=gettext("Configuration");?></span></a></li>
-			<li class="tabinact"><a href="rrdgraphs_update_extension.php"><span><?=gettext("Extension Maintenance");?></span></a></li>
+			<li class="tabinact"><a href="rrdgraphs_update_extension.php"><span><?=gettext("Maintenance");?></span></a></li>
 		</ul>
 	</td></tr>
     <tr><td class="tabcont">
@@ -431,8 +439,10 @@ function enable_change(enable_change) {
         	<?php html_titleline_checkbox("enable", $config['rrdgraphs']['appname'], $pconfig['enable'], gettext("Enable"), "enable_change(false)");?>
 			<?php html_text("installation_directory", gettext("Installation directory"), sprintf(gettext("The extension is installed in %s."), $config['rrdgraphs']['rootfolder']));?>
 			<?php html_filechooser("storage_path", gettext("Working directory"), $pconfig['storage_path'], gettext("The working directory which will be used during the runtime of RRDGraphs. This should be set to a <b>SSD</b> (preferably) or <b>RAM disk</b> to prevent a disk spinning all the time.<br /><b><font color='red'>CAUTION:</font> The use of a RAM disk could lead to the loss of statistic data in case of a system crash or not graceful shutdown of a system!</b><br />Default is /var/run which is on a RAM disk on embedded installations."), $g['media_path'], false, 60);?>
-            <?php html_inputbox("graph_h", gettext("Graphs height"), $pconfig['graph_h'], sprintf(gettext("Height of the graphs. Default is 200 pixel."), 200), false, 5);?>
             <?php html_inputbox("refresh_time", gettext("Refresh time"), $pconfig['refresh_time'], gettext("Refresh time for graph pages.")." ".sprintf(gettext("Default is %s %s."), 300, gettext("seconds")), false, 5);?>
+            <?php html_inputbox("graph_h", gettext("Graphs height"), $pconfig['graph_h'], sprintf(gettext("Height of the graphs. Default is %s pixel."), 200), false, 5);?>
+            <?php html_inputbox("zoom_factor", gettext("Zoom"), $pconfig['zoom_factor'], sprintf(gettext("Zoom factor for graphs. Default is %s."), 1), false, 5);?>
+            <?php html_checkbox("autoscale", gettext("Autoscale"), $pconfig['autoscale'], gettext("Autoscale for graphs."), "", false);?>
             <?php html_checkbox("background_black", gettext("Graphs background"), $pconfig['background_black'], gettext("Black background for graphs."), "", false);?>
 			<?php html_separator();?>
 			<?php html_titleline(gettext("Available graphs"));?>

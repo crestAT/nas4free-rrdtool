@@ -6,11 +6,7 @@
     All rights reserved.
 
 	Portions of NAS4Free (http://www.nas4free.org).
-	Copyright (c) 2012-2015 The NAS4Free Project <info@nas4free.org>.
-	All rights reserved.
-
-	Portions of freenas (http://www.freenas.org).
-	Copyright (c) 2005-2011 by Olivier Cochard <olivier@freenas.org>.
+	Copyright (c) 2012-2016 The NAS4Free Project <info@nas4free.org>.
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -44,10 +40,11 @@ require_once("util.inc");
 require_once("{$config['rrdgraphs']['rootfolder']}ext/rrdgraphs_fcopy.inc");
 
 // restore original files by shutdown
-copy_backup2origin($files, $backup_path, $extend_path);
+rrdg_copy_backup2origin($files, $backup_path, $extend_path);
 // save graphs
 mwexec("cp -p {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/*.rrd {$config['rrdgraphs']['rootfolder']}rrd/", false);
 // cleanup links
 mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-unlink.sh", false);
+if (is_link("/usr/local/share/locale-rrd")) unlink("/usr/local/share/locale-rrd");
 exec("logger rrdgraphs: stopped");
 ?>

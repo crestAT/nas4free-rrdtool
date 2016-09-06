@@ -5,10 +5,11 @@ $BACKGROUND                                                 \
 $SCALING                                                    \
 $LOWER_LIMIT                                                \
 "-v ${BIT_STR}/sec"								            \
-"-E"						    			                \
 "-a" "PNG"								                    \
 "-h ${GRAPH_H}"								                \
 "-w" "600"								                    \
+"--slope-mode" \
+"--alt-autoscale-max" \
 "DEF:in=$WORKING_DIR/rrd/${INTERFACE0}.rrd:in:AVERAGE"		\
 "DEF:out=$WORKING_DIR/rrd/${INTERFACE0}.rrd:out:AVERAGE"    \
 "CDEF:in_bits=in,${BIT_VAL},*"					            \

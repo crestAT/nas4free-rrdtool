@@ -6,11 +6,7 @@
     All rights reserved.
 
 	Portions of NAS4Free (http://www.nas4free.org).
-	Copyright (c) 2012-2015 The NAS4Free Project <info@nas4free.org>.
-	All rights reserved.
-
-	Portions of freenas (http://www.freenas.org).
-	Copyright (c) 2005-2011 by Olivier Cochard <olivier@freenas.org>.
+	Copyright (c) 2012-2016 The NAS4Free Project <info@nas4free.org>.
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -50,7 +46,7 @@ $files = array(
 $backup_path = $config['rrdgraphs']['rootfolder']."backup/";
 $extend_path = $config['rrdgraphs']['rootfolder']."files/";
 
-function copy_origin2backup ($files, $backup_path, $extend_path) {
+function rrdg_copy_origin2backup ($files, $backup_path, $extend_path) {
     foreach ($files as $file) {
         if (is_file($file[1].$file[0])) {
             if (! copy($file[1].$file[0], $backup_path.$file[0])) {
@@ -62,7 +58,7 @@ function copy_origin2backup ($files, $backup_path, $extend_path) {
     return $error_msg;
 }                                                                              
 
-function copy_backup2origin ($files, $backup_path, $extend_path) {
+function rrdg_copy_backup2origin ($files, $backup_path, $extend_path) {
     foreach ($files as $file) {
         if (is_file($backup_path.$file[0])) {
             if (! copy($backup_path.$file[0], $file[1].$file[0])) {
@@ -74,7 +70,7 @@ function copy_backup2origin ($files, $backup_path, $extend_path) {
     return $error_msg;
 }
 
-function copy_extended2origin ($files, $backup_path, $extend_path) {
+function rrdg_copy_extended2origin ($files, $backup_path, $extend_path) {
     foreach ($files as $file) {
         if (! copy($extend_path.$file[0], $file[1].$file[0])) {
             $msg="failed to copy $file[0] from $extend_path to $file[1]"; 

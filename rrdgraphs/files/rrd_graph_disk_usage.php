@@ -86,6 +86,7 @@ bindtextdomain("nas4free", "/usr/local/share/locale-rrd"); ?>
         $current_key = key($temp_array);
         if (isset($_GET['selector']) && $_GET['selector']) $current_key = $_GET['selector'];
         $current_data = $temp_array[$current_key];
+        $clean_name = str_replace('/', '-', $current_data);                         // clean .rrd filename from '/' for ZFS datasets
         $selector_array = $temp_array;
         foreach ($selector_array as $selector_key => $selector_data) {
         	echo "<option value=\"$selector_key\"";
@@ -97,13 +98,13 @@ bindtextdomain("nas4free", "/usr/local/share/locale-rrd"); ?>
 </form>
 <div align="center" style="min-width:840px;">
     <br>
-    <img src="/rrd-mnt_<?=$current_data;?>_daily.png?rand=<?=time()?>" alt="RRDGraphs Daily Disk usage Graph |<?=$current_data;?>|" width="graph_width" height="graph_height">
+    <img src="/rrd-mnt_<?=$clean_name;?>_daily.png?rand=<?=time()?>" alt="RRDGraphs Daily Disk usage Graph |<?=$clean_name;?>|" width="graph_width" height="graph_height">
     <br><br>
-    <img src="/rrd-mnt_<?=$current_data;?>_weekly.png?rand=<?=time()?>" alt="RRDGraphs Weekly Disk usage Graph" width="graph_width" height="graph_height">
+    <img src="/rrd-mnt_<?=$clean_name;?>_weekly.png?rand=<?=time()?>" alt="RRDGraphs Weekly Disk usage Graph" width="graph_width" height="graph_height">
     <br><br>
-    <img src="/rrd-mnt_<?=$current_data;?>_monthly.png?rand=<?=time()?>" alt="RRDGraphs Monthly Disk usage Graph" width="graph_width" height="graph_height">
+    <img src="/rrd-mnt_<?=$clean_name;?>_monthly.png?rand=<?=time()?>" alt="RRDGraphs Monthly Disk usage Graph" width="graph_width" height="graph_height">
     <br><br>
-    <img src="/rrd-mnt_<?=$current_data;?>_yearly.png?rand=<?=time()?>" alt="RRDGraphs Yearly Disk usage Graph" width="graph_width" height="graph_height">
+    <img src="/rrd-mnt_<?=$clean_name;?>_yearly.png?rand=<?=time()?>" alt="RRDGraphs Yearly Disk usage Graph" width="graph_width" height="graph_height">
 </div>
 </td></tr></table>
 <?php include("fend.inc");?>
