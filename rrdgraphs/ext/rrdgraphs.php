@@ -328,7 +328,7 @@ if (empty($pconfig['latency_interface']) && is_array($a_interface)) $pconfig['la
 $return_val = mwexec("fetch -o {$config['rrdgraphs']['updatefolder']}version.txt https://raw.github.com/crestAT/nas4free-rrdtool/master/rrdgraphs/version.txt", false);
 if ($return_val == 0) {
     $server_version = exec("cat {$config['rrdgraphs']['updatefolder']}version.txt");
-    if ($server_version != $config['rrdgraphs']['version']) { $savemsg = sprintf(gettext("New extension version %s available, push '%s' button to install the new version!"), $server_version, gettext("Maintenance")); }
+    if ($server_version != $config['rrdgraphs']['version']) { $savemsg = sprintf(gettext("New extension version %s available, push '%s' button to install the new version!"), $server_version, gettext("Extension Maintenance")); }
 }   //EOversion-check
 
 bindtextdomain("nas4free", "/usr/local/share/locale");                  // to get the right main menu language
@@ -429,7 +429,7 @@ function enable_change(enable_change) {
 	<tr><td class="tabnavtbl">
 		<ul id="tabnav">
 			<li class="tabact"><a href="rrdgraphs.php"><span><?=gettext("Configuration");?></span></a></li>
-			<li class="tabinact"><a href="rrdgraphs_update_extension.php"><span><?=gettext("Maintenance");?></span></a></li>
+			<li class="tabinact"><a href="rrdgraphs_update_extension.php"><span><?=gettext("Extension Maintenance");?></span></a></li>
 		</ul>
 	</td></tr>
     <tr><td class="tabcont">

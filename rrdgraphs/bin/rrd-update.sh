@@ -186,7 +186,7 @@ fi
 # CPU temperatures
 if [ $RUN_TMP -eq 1 ]; then 
     T1=`sysctl -q -n dev.cpu.0.temperature | awk '{gsub("C",""); print}'`;      # core 1 temperature
-#    T2=`sysctl -q -n dev.cpu.1.temperature | awk '{gsub("C",""); print}'`;      # core 2 temperature
+    T2=`sysctl -q -n dev.cpu.1.temperature | awk '{gsub("C",""); print}'`;      # core 2 temperature
     T2=0;
     /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu_temp.rrd N:$T1:$T2 2>> /tmp/rrdgraphs-error.log 2>> /tmp/rrdgraphs-error.log
 fi

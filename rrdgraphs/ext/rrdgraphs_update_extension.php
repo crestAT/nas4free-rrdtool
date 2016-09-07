@@ -162,7 +162,7 @@ bindtextdomain("nas4free", "/usr/local/share/locale-rrd"); ?>
 	<tr><td class="tabnavtbl">
 		<ul id="tabnav">
 			<li class="tabinact"><a href="rrdgraphs.php"><span><?=gettext("Configuration");?></span></a></li>
-			<li class="tabact"><a href="rrdgraphs_update_extension.php"><span><?=gettext("Maintenance");?></span></a></li>
+			<li class="tabact"><a href="rrdgraphs_update_extension.php"><span><?=gettext("Extension Maintenance");?></span></a></li>
 		</ul>
 	</td></tr>
 	<tr><td class="tabcont">

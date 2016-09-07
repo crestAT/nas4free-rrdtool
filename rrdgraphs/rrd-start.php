@@ -68,8 +68,8 @@ mwexec("cp {$config['rrdgraphs']['rootfolder']}ext/* /usr/local/www/ext/rrdgraph
 if (!is_link("/usr/local/www/rrdgraphs.php")) { exec ("ln -s /usr/local/www/ext/rrdgraphs/rrdgraphs.php /usr/local/www/rrdgraphs.php"); }
 if (!is_link("/usr/local/www/rrdgraphs_update_extension.php")) { exec ("ln -s /usr/local/www/ext/rrdgraphs/rrdgraphs_update_extension.php /usr/local/www/rrdgraphs_update_extension.php"); }
 // cp locales to work path and create link
-exec ("cp {$config['rrdgraphs']['rootfolder']}locale-rrd {$config['rrdgraphs']['storage_path']}");
-if (!is_link("/usr/local/share/locale-rrd")) { exec("ln -s {$config['rrdgraphs']['storage_path']}locale-rrd /usr/local/share/"); }
+mwexec("cp -R {$config['rrdgraphs']['rootfolder']}locale-rrd {$config['rrdgraphs']['storage_path']}rrdgraphs/", true);
+if (!is_link("/usr/local/share/locale-rrd")) { exec("ln -s {$config['rrdgraphs']['storage_path']}rrdgraphs/locale-rrd /usr/local/share/"); }
 
 if (isset($config['rrdgraphs']['enable'])) { 
     exec("logger rrdgraphs: enabled, starting ...");
@@ -84,13 +84,15 @@ if (isset($config['rrdgraphs']['enable'])) {
 // cp binaries to work path if RRDTool is not on board
     if (!file_exists('/usr/local/bin/rrdtool')) {
         if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/bin")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/bin", 0775, true); }
-        exec ("cp -R {$config['rrdgraphs']['rootfolder']}bin/{$config['rrdgraphs']['architecture']}/* {$config['rrdgraphs']['storage_path']}rrdgraphs/bin/");
-    } 
+        mwexec("cp -R {$config['rrdgraphs']['rootfolder']}bin/{$config['rrdgraphs']['architecture']}/* {$config['rrdgraphs']['storage_path']}rrdgraphs/bin/", true);
+        exec("logger rrdgraphs: no built-in RRDTool binaries found, use delivered binaries");
+    }
+    else exec("logger rrdgraphs: use built-in RRDTool binaries"); 
 // cp templates to work path
     if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/templates")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/templates", 0775, true); }
-    exec ("cp {$config['rrdgraphs']['rootfolder']}bin/templates/* {$config['rrdgraphs']['storage_path']}rrdgraphs/templates/");
+    mwexec("cp {$config['rrdgraphs']['rootfolder']}bin/templates/* {$config['rrdgraphs']['storage_path']}rrdgraphs/templates/", true);
 // cp scripts to work path
-    exec ("cp {$config['rrdgraphs']['rootfolder']}bin/*.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/");
+    mwexec("cp {$config['rrdgraphs']['rootfolder']}bin/*.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/", true);
 // create links to work path
     mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link.sh", true);
 
@@ -111,13 +113,13 @@ if (isset($config['rrdgraphs']['enable'])) {
     $rrd_name = "cpu_temp.rrd";
     if (isset($config['rrdgraphs']['cpu_temperature']) && !is_file("{$config['rrdgraphs']['rootfolder']}rrd/{$rrd_name}"))
     { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/{$rrd_name} \
-			--step 60 \
-			'DS:core0:GAUGE:120:0:U' \
-			'DS:core1:GAUGE:120:0:U' \
-			'RRA:AVERAGE:0.5:1:1440' \
-			'RRA:AVERAGE:0.5:10:1008' \
-			'RRA:AVERAGE:0.5:30:1440' \
-			'RRA:AVERAGE:0.5:480:1095'
+			--step 300 \
+			'DS:core0:GAUGE:600:0:U' \
+			'DS:core1:GAUGE:600:0:U' \
+			'RRA:AVERAGE:0.5:1:576' \
+			'RRA:AVERAGE:0.5:6:672' \
+			'RRA:AVERAGE:0.5:24:732' \
+			'RRA:AVERAGE:0.5:144:1460'
     ", true);
     exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
@@ -374,11 +376,11 @@ if (isset($config['rrdgraphs']['enable'])) {
     fclose($rrdconfig);
 
 // cp CONFIG.sh to work path
-    exec ("cp {$config['rrdgraphs']['rootfolder']}bin/CONFIG.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/");
+    mwexec("cp {$config['rrdgraphs']['rootfolder']}bin/CONFIG.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/", true);
 // cp rrds to work path
     if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd")) { 
         mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd", 0775, true); 
-        exec ("cp -R {$config['rrdgraphs']['rootfolder']}rrd/*.rrd {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/");
+        mwexec("cp -R {$config['rrdgraphs']['rootfolder']}rrd/*.rrd {$config['rrdgraphs']['storage_path']}rrdgraphs/rrd/", true);
     }
     else {
 		foreach (glob("{$config['rrdgraphs']['rootfolder']}rrd/*.rrd") as $file_name) {
