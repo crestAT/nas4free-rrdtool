@@ -1,4 +1,5 @@
 ﻿Version Date        Description
+0.3.3-b5 2016.09.10 F: rrd files open error on startup -> http://forums.nas4free.org/viewtopic.php?p=71026#p71026
 0.3.3-b4 2016.09.06 N: Swedish translation
                     N: support ZFS datasets -> http://forums.nas4free.org/viewtopic.php?f=71&t=8299&start=60#p65209
                     N: enable ARM based appliances

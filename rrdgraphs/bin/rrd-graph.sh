@@ -34,7 +34,13 @@ if [ "$1" == "traffic" ] || ( [ "$1" == "" ] && [ "$RUN_LAN" == "1" ] ); then
     done
 fi
 if [ "$1" == "load" ]        || ( [ "$1" == "" ] && [ "$RUN_AVG" == "1" ] ); then CREATE_GRAPHS "load_averages"   "CPU load averages"; fi
-if [ "$1" == "temperature" ] || ( [ "$1" == "" ] && [ "$RUN_TMP" == "1" ] ); then CREATE_GRAPHS "cpu_temperature" "CPU temperature"; fi
+if [ "$1" == "temperature" ] || ( [ "$1" == "" ] && [ "$RUN_TMP" == "1" ] ); then 
+    RRDT_R=`echo -e ${RRDT_RELEASE} | awk '{gsub("[.]",""); print}'`
+    if [ $RRDT_R -ge 160 ]; then LEFT_AXIS_FORMAT="--left-axis-format %2.1lf";
+    else LEFT_AXIS_FORMAT=""; 
+    fi
+    CREATE_GRAPHS "cpu_temperature" "CPU temperature";
+fi
 if [ "$1" == "frequency" ]   || ( [ "$1" == "" ] && [ "$RUN_FRQ" == "1" ] ); then CREATE_GRAPHS "cpu_frequency"   "CPU frequency"; fi
 if [ "$1" == "processes" ]   || ( [ "$1" == "" ] && [ "$RUN_PRO" == "1" ] ); then CREATE_GRAPHS "processes"       "Number of processes"; fi
 if [ "$1" == "cpu" ]         || ( [ "$1" == "" ] && [ "$RUN_CPU" == "1" ] ); then CREATE_GRAPHS "cpu"             "CPU usage"; fi

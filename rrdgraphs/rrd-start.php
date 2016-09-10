@@ -73,6 +73,7 @@ if (!is_link("/usr/local/share/locale-rrd")) { exec("ln -s {$config['rrdgraphs']
 
 if (isset($config['rrdgraphs']['enable'])) { 
     exec("logger rrdgraphs: enabled, starting ...");
+// copy extension files to WebGUI root
     mwexec("cp {$config['rrdgraphs']['rootfolder']}files/* /usr/local/www/", true);
 // exchange originals files with changed ...
     rrdg_copy_extended2origin($files, $backup_path, $extend_path);                                            
@@ -82,7 +83,7 @@ if (isset($config['rrdgraphs']['enable'])) {
         copy("{$config['rrdgraphs']['backupfolder']}graph_cpu.php", "/usr/local/www/graph_cpu.php");
     }
 // cp binaries to work path if RRDTool is not on board
-    if (!file_exists('/usr/local/bin/rrdtool')) {
+    if (!is_file('/usr/local/bin/rrdtool')) {
         if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/bin")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/bin", 0775, true); }
         mwexec("cp -R {$config['rrdgraphs']['rootfolder']}bin/{$config['rrdgraphs']['architecture']}/* {$config['rrdgraphs']['storage_path']}rrdgraphs/bin/", true);
         exec("logger rrdgraphs: no built-in RRDTool binaries found, use delivered binaries");
@@ -91,7 +92,99 @@ if (isset($config['rrdgraphs']['enable'])) {
 // cp templates to work path
     if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/templates")) { mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/templates", 0775, true); }
     mwexec("cp {$config['rrdgraphs']['rootfolder']}bin/templates/* {$config['rrdgraphs']['storage_path']}rrdgraphs/templates/", true);
-// cp scripts to work path
+
+// create config file - for booleans we need the variable $txt
+    $rrdconfig = fopen("{$config['rrdgraphs']['rootfolder']}bin/CONFIG.sh", "w");
+        fwrite($rrdconfig, "OS_RELEASE={$config['rrdgraphs']['osrelease']}"."\n");
+        $RRDT_RELEASE = exec("/usr/local/bin/rrdtool -h | awk '/Copyright/ {print $2}'");
+        fwrite($rrdconfig, "RRDT_RELEASE={$RRDT_RELEASE}"."\n");
+        fwrite($rrdconfig, "GRAPH_H={$config['rrdgraphs']['graph_h']}"."\n");
+        fwrite($rrdconfig, "REFRESH_TIME={$config['rrdgraphs']['refresh_time']}"."\n");
+        fwrite($rrdconfig, "ZOOM_FACTOR={$config['rrdgraphs']['zoom_factor']}"."\n");
+        $txt = isset($config['rrdgraphs']['autoscale']) ? "--alt-autoscale" : "";
+        fwrite($rrdconfig, "AUTOSCALE=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['background_black']) ? "1" : "0";
+        fwrite($rrdconfig, "BACKGROUND_BLACK=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['bytes_per_second']) ? "1" : "0";
+        fwrite($rrdconfig, "BYTE_SWITCH=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['logarithmic']) ? "1" : "0";
+        fwrite($rrdconfig, "LOGARITHMIC=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['axis']) ? "1" : "0";
+        fwrite($rrdconfig, "AXIS=".$txt."\n");
+        fwrite($rrdconfig, "INTERFACE0={$config['rrdgraphs']['lan_if']}"."\n");
+        fwrite($rrdconfig, "UPS_AT={$config['rrdgraphs']['ups_at']}"."\n");
+        fwrite($rrdconfig, "LATENCY_HOST={$config['rrdgraphs']['latency_host']}"."\n");
+        fwrite($rrdconfig, "LATENCY_INTERFACE={$config['rrdgraphs']['latency_interface']}"."\n");
+        fwrite($rrdconfig, "LATENCY_INTERFACE_IP=".get_ipaddr($config['rrdgraphs']['latency_interface'])."\n");
+        fwrite($rrdconfig, "LATENCY_COUNT={$config['rrdgraphs']['latency_count']}"."\n");
+        fwrite($rrdconfig, "LATENCY_PARAMETERS='{$config['rrdgraphs']['latency_parameters']}'"."\n");
+        $txt = isset($config['rrdgraphs']['lan_load']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_LAN=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['load_averages']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_AVG=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['cpu_temperature']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_TMP=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['cpu_frequency']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_FRQ=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['disk_usage']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_DUS=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['no_processes']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_PRO=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['cpu_usage']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_CPU=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['memory_usage']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_MEM=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['arc_usage']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_ARC=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['latency']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_LAT=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['ups']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_UPS=".$txt."\n");
+        $txt = isset($config['rrdgraphs']['uptime']) ? "1" : "0";
+        fwrite($rrdconfig, "RUN_UPT=".$txt."\n");
+
+        if (isset($config['rrdgraphs']['disk_usage'])) {
+            unset($config["rrdgraphs"]["mounts"]);
+            $config["rrdgraphs"]["mounts"] = array();
+            unset($config["rrdgraphs"]["pools"]);
+            $config["rrdgraphs"]["pools"] = array();
+
+            if (is_array($config['mounts']) && is_array($config['mounts']['mount'])) {
+                for ($i = 0; $i < count($config['mounts']['mount']); ++$i) {
+                    $config["rrdgraphs"]["mounts"]["mount{$i}"] = $config['mounts']['mount'][$i]['sharename'];
+                    fwrite($rrdconfig, "MOUNT{$i}={$config['mounts']['mount'][$i]['sharename']}"."\n");
+                }
+            }
+
+            if (is_array($config['zfs']['pools']) && is_array($config['zfs']['pools']['pool'])) {
+                unset($pools);
+                exec("zfs list -H -t filesystem -o name", $pools, $retval);             // get ZFS pools and datasets
+                for ($i = 0; $i < count($pools); ++$i) {
+                    $config["rrdgraphs"]["pools"]["pool{$i}"] = $pools[$i];
+                    fwrite($rrdconfig, "POOL{$i}={$pools[$i]}"."\n");
+                }
+            }
+
+            $temp_array = array_merge($config["rrdgraphs"]["mounts"], $config["rrdgraphs"]["pools"]);
+            foreach ($temp_array as $retval) {
+                $clean_name = str_replace('/', '-', $retval);
+                if (!is_file("{$config['rrdgraphs']['rootfolder']}rrd/mnt_{$clean_name}.rrd"))
+                { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/mnt_{$clean_name}.rrd \
+                    -s 300 \
+                    'DS:Used:GAUGE:600:U:U' \
+                    'DS:Free:GAUGE:600:U:U' \
+                    'RRA:AVERAGE:0.5:1:576' \
+                    'RRA:AVERAGE:0.5:6:672' \
+                    'RRA:AVERAGE:0.5:24:732' \
+                    'RRA:AVERAGE:0.5:144:1460'
+                ", true);
+                exec("logger rrdgraphs: new rrd created: mnt_{$clean_name}.rrd");
+                }
+            }
+        }
+    fclose($rrdconfig);
+
+// cp scripts (included CONFIG.sh) to work path
     mwexec("cp {$config['rrdgraphs']['rootfolder']}bin/*.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/", true);
 // create links to work path
     mwexec("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd-link.sh", true);
@@ -286,97 +379,6 @@ if (isset($config['rrdgraphs']['enable'])) {
     exec("logger rrdgraphs: new rrd created: {$rrd_name}");
     }
 
-    // create config file - for booleans we need the variable $txt
-    $rrdconfig = fopen("{$config['rrdgraphs']['rootfolder']}bin/CONFIG.sh", "w");
-        fwrite($rrdconfig, "OS_RELEASE={$config['rrdgraphs']['osrelease']}"."\n");
-        fwrite($rrdconfig, "GRAPH_H={$config['rrdgraphs']['graph_h']}"."\n");
-        fwrite($rrdconfig, "REFRESH_TIME={$config['rrdgraphs']['refresh_time']}"."\n");
-        fwrite($rrdconfig, "ZOOM_FACTOR={$config['rrdgraphs']['zoom_factor']}"."\n");
-        $txt = isset($config['rrdgraphs']['autoscale']) ? "--alt-autoscale" : "";
-        fwrite($rrdconfig, "AUTOSCALE=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['background_black']) ? "1" : "0";
-        fwrite($rrdconfig, "BACKGROUND_BLACK=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['bytes_per_second']) ? "1" : "0";
-        fwrite($rrdconfig, "BYTE_SWITCH=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['logarithmic']) ? "1" : "0";
-        fwrite($rrdconfig, "LOGARITHMIC=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['axis']) ? "1" : "0";
-        fwrite($rrdconfig, "AXIS=".$txt."\n");
-        fwrite($rrdconfig, "INTERFACE0={$config['rrdgraphs']['lan_if']}"."\n");
-        fwrite($rrdconfig, "UPS_AT={$config['rrdgraphs']['ups_at']}"."\n");
-        fwrite($rrdconfig, "LATENCY_HOST={$config['rrdgraphs']['latency_host']}"."\n");
-        fwrite($rrdconfig, "LATENCY_INTERFACE={$config['rrdgraphs']['latency_interface']}"."\n");
-        fwrite($rrdconfig, "LATENCY_INTERFACE_IP=".get_ipaddr($config['rrdgraphs']['latency_interface'])."\n");
-        fwrite($rrdconfig, "LATENCY_COUNT={$config['rrdgraphs']['latency_count']}"."\n");
-        fwrite($rrdconfig, "LATENCY_PARAMETERS='{$config['rrdgraphs']['latency_parameters']}'"."\n");
-        $txt = isset($config['rrdgraphs']['lan_load']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_LAN=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['load_averages']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_AVG=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['cpu_temperature']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_TMP=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['cpu_frequency']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_FRQ=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['disk_usage']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_DUS=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['no_processes']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_PRO=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['cpu_usage']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_CPU=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['memory_usage']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_MEM=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['arc_usage']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_ARC=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['latency']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_LAT=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['ups']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_UPS=".$txt."\n");
-        $txt = isset($config['rrdgraphs']['uptime']) ? "1" : "0";
-        fwrite($rrdconfig, "RUN_UPT=".$txt."\n");
-
-        if (isset($config['rrdgraphs']['disk_usage'])) {
-            unset($config["rrdgraphs"]["mounts"]);
-            $config["rrdgraphs"]["mounts"] = array();
-            unset($config["rrdgraphs"]["pools"]);
-            $config["rrdgraphs"]["pools"] = array();
-            
-            if (is_array($config['mounts']) && is_array($config['mounts']['mount'])) {
-                for ($i = 0; $i < count($config['mounts']['mount']); ++$i) {
-                    $config["rrdgraphs"]["mounts"]["mount{$i}"] = $config['mounts']['mount'][$i]['sharename']; 
-                    fwrite($rrdconfig, "MOUNT{$i}={$config['mounts']['mount'][$i]['sharename']}"."\n");
-                }
-            }
-
-            if (is_array($config['zfs']['pools']) && is_array($config['zfs']['pools']['pool'])) {
-                unset($pools);            
-                exec("zfs list -H -t filesystem -o name", $pools, $retval);             // get ZFS pools and datasets
-                for ($i = 0; $i < count($pools); ++$i) {
-                    $config["rrdgraphs"]["pools"]["pool{$i}"] = $pools[$i];
-                    fwrite($rrdconfig, "POOL{$i}={$pools[$i]}"."\n");
-                }
-            }
-        
-            $temp_array = array_merge($config["rrdgraphs"]["mounts"], $config["rrdgraphs"]["pools"]);
-            foreach ($temp_array as $retval) {
-                $clean_name = str_replace('/', '-', $retval);
-                if (!is_file("{$config['rrdgraphs']['rootfolder']}rrd/mnt_{$clean_name}.rrd"))
-                { mwexec("/usr/local/bin/rrdtool create {$config["rrdgraphs"]["rootfolder"]}rrd/mnt_{$clean_name}.rrd \
-                    -s 300 \
-                    'DS:Used:GAUGE:600:U:U' \
-                    'DS:Free:GAUGE:600:U:U' \
-                    'RRA:AVERAGE:0.5:1:576' \
-                    'RRA:AVERAGE:0.5:6:672' \
-                    'RRA:AVERAGE:0.5:24:732' \
-                    'RRA:AVERAGE:0.5:144:1460'
-                ", true);
-                exec("logger rrdgraphs: new rrd created: mnt_{$clean_name}.rrd");
-                }
-            }
-        }
-    fclose($rrdconfig);
-
-// cp CONFIG.sh to work path
-    mwexec("cp {$config['rrdgraphs']['rootfolder']}bin/CONFIG.sh {$config['rrdgraphs']['storage_path']}rrdgraphs/", true);
 // cp rrds to work path
     if (!is_dir("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd")) { 
         mkdir("{$config['rrdgraphs']['storage_path']}rrdgraphs/rrd", 0775, true); 

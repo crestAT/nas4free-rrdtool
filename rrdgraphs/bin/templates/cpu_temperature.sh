@@ -3,8 +3,7 @@
 --end -0h \
 --title "$TITLE_STRING" \
 --vertical-label "Temperature [°C]" \
---left-axis-format %2.1lf \
-"-a" "PNG"                                              \
+$LEFT_AXIS_FORMAT "-a" "PNG"                            \
 "-h ${GRAPH_H}"                                         \
 "-w" "600"                                              \
 --slope-mode $BACKGROUND $EXTENDED_OPTIONS \
