@@ -8,7 +8,7 @@ $BACKGROUND \
 "-h ${GRAPH_H}" \
 "-w" "600" \
 "--slope-mode" \
-"-l 0" \
+"--alt-autoscale-max" \
 "DEF:active=$WORKING_DIR/rrd/memory.rrd:active:AVERAGE" \
 "DEF:inact=$WORKING_DIR/rrd/memory.rrd:inact:AVERAGE" \
 "DEF:wired=$WORKING_DIR/rrd/memory.rrd:wired:AVERAGE" \

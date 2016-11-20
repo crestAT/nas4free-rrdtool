@@ -6,8 +6,8 @@ $BACKGROUND \
 "-a" "PNG" \
 "-h ${GRAPH_H}" \
 "-w" "600" \
-"-l 0" \
 "--slope-mode" \
+"--alt-autoscale-max" \
 "DEF:uptime=$WORKING_DIR/rrd/${GRAPH}.rrd:uptime:AVERAGE" \
 "VDEF:mintime=uptime,MINIMUM" \
 "VDEF:avgtime=uptime,AVERAGE" \

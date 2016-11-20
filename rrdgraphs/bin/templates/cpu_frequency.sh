@@ -3,11 +3,12 @@
 "-t" "$TITLE_STRING"                                    \
 $BACKGROUND                                             \
 "-v Frequency [MHz]"                                    \
-"-E"                                                    \
 "-a" "PNG"                                              \
 "-h ${GRAPH_H}"                                         \
 "-w" "600"                                              \
 "-X 0"                                                  \
+"--slope-mode" \
+"--alt-autoscale" \
 "DEF:cpu=$WORKING_DIR/rrd/cpu_freq.rrd:core0:AVERAGE"   \
 "LINE1:cpu#00CF00:"                                     \
 "VDEF:minC=cpu,MINIMUM"                                 \

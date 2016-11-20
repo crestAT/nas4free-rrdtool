@@ -8,6 +8,7 @@ $BACKGROUND \
 "-h ${GRAPH_H}" \
 "-w" "600" \
 "--slope-mode" \
+"--alt-autoscale-max" \
 "DEF:min=$WORKING_DIR/rrd/${GRAPH}.rrd:min:AVERAGE" \
 "DEF:avg=$WORKING_DIR/rrd/${GRAPH}.rrd:avg:AVERAGE" \
 "DEF:max=$WORKING_DIR/rrd/${GRAPH}.rrd:max:AVERAGE" \

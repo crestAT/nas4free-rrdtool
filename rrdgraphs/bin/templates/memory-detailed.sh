@@ -8,7 +8,7 @@ $BACKGROUND \
 "-h ${GRAPH_H}" \
 "-w" "600" \
 "--slope-mode" \
-"-l 0" \
+"--alt-autoscale-max" \
 "DEF:active=$WORKING_DIR/rrd/memory.rrd:active:AVERAGE" \
 "DEF:inact=$WORKING_DIR/rrd/memory.rrd:inact:AVERAGE" \
 "DEF:wired=$WORKING_DIR/rrd/memory.rrd:wired:AVERAGE" \
@@ -55,7 +55,6 @@ $BACKGROUND \
 "GPRINT:buf:AVERAGE:Avg\\:%6.1lf %s" \
 "GPRINT:buf:LAST:Last\\:%6.1lf %s" \
 "COMMENT:\n" \
-"HRULE:stotal#0000FF7F::dashes" \
 "LINE1:total#0000FF7F:Swap total:dashes" \
 "GPRINT:total:MIN:Min\\:%6.1lf %s" \
 "GPRINT:total:MAX:Max\\:%6.1lf %s" \

@@ -3,12 +3,13 @@
 "-t" "$TITLE_STRING"                                        \
 $BACKGROUND                                                 \
 "-v Load"									                \
-"-E"									                    \
 "-a" "PNG"								                    \
 "-h ${GRAPH_H}"								                \
 "-w" "600"								                    \
 "-X 0"									                    \
 "-l 0"									                    \
+"--slope-mode" \
+"--alt-autoscale-max" \
 "DEF:CPU=$WORKING_DIR/rrd/cpu_usage.rrd:CPU:AVERAGE"		\
 "DEF:CPU5=$WORKING_DIR/rrd/cpu_usage.rrd:CPU5:AVERAGE"		\
 "DEF:CPU15=$WORKING_DIR/rrd/cpu_usage.rrd:CPU15:AVERAGE"    \

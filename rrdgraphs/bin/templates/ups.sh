@@ -8,6 +8,7 @@ $BACKGROUND \
 "-h ${GRAPH_H}" \
 "-w" "600" \
 "--slope-mode" \
+"--alt-autoscale-max" \
 "DEF:charge=$WORKING_DIR/rrd/ups.rrd:charge:AVERAGE" \
 "DEF:load=$WORKING_DIR/rrd/ups.rrd:load:AVERAGE" \
 "DEF:bvoltage=$WORKING_DIR/rrd/ups.rrd:bvoltage:AVERAGE" \

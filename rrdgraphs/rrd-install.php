@@ -6,11 +6,7 @@
     All rights reserved.
 
 	Portions of NAS4Free (http://www.nas4free.org).
-	Copyright (c) 2012-2015 The NAS4Free Project <info@nas4free.org>.
-	All rights reserved.
-
-	Portions of freenas (http://www.freenas.org).
-	Copyright (c) 2005-2011 by Olivier Cochard <olivier@freenas.org>.
+	Copyright (c) 2012-2016 The NAS4Free Project <info@nas4free.org>.
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -38,15 +34,16 @@
 	either expressed or implied, of the NAS4Free Project.
 */
 
-$v = "v0.3.2";                                  // extension version
+$v = "v0.3.3";                                  // extension version
 $appname = "RRDGraphs";
 
 require_once("config.inc");
 
 $arch = $g['arch'];
 $platform = $g['platform'];
-if (($arch != "i386" && $arch != "amd64") && ($arch != "x86" && $arch != "x64" && $arch != "rpi")) { echo "\f{$arch} is an unsupported architecture!\n"; exit(1);  }
-if ($platform != "embedded" && $platform != "full" && $platform != "livecd" && $platform != "liveusb") { echo "\funsupported platform!\n";  exit(1); }
+// no check necessary since the extension is for all archictectures/platforms/releases
+//if (($arch != "i386" && $arch != "amd64") && ($arch != "x86" && $arch != "x64" && $arch != "rpi" && $arch != "rpi2")) { echo "\f{$arch} is an unsupported architecture!\n"; exit(1);  }
+//if ($platform != "embedded" && $platform != "full" && $platform != "livecd" && $platform != "liveusb") { echo "\funsupported platform!\n";  exit(1); }
 
 // install extension
 global $input_errors;

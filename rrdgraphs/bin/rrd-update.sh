@@ -29,7 +29,7 @@ while [ "${1}" != "" ]; do
         if [ "${!counter}" == "$1" ]; then
             CALC_SI $2; C_USED=${CRESULT}
             CALC_SI $3; C_FREE=${CRESULT}
-            /usr/local/bin/rrdtool update $WORKING_DIR/rrd/mnt_${1}.rrd N:${C_USED}:${C_FREE}
+            /usr/local/bin/rrdtool update $WORKING_DIR/rrd/mnt_${1}.rrd N:${C_USED}:${C_FREE} 2>> /tmp/rrdgraphs-error.log
             break
         fi
         i=$((i+1))
@@ -45,7 +45,8 @@ CREATE_POOLS_CMD ()
 while [ "${1}" != "" ]; do
     CALC_SI $2; C_USED=${CRESULT}
     CALC_SI $3; C_FREE=${CRESULT}
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/mnt_${1}.rrd N:${C_USED}:${C_FREE}
+    CLEAN_NAME=`echo -e $1 | awk '{gsub("/","-"); print}'`
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/mnt_${CLEAN_NAME}.rrd N:${C_USED}:${C_FREE} 2>> /tmp/rrdgraphs-error.log
     shift 3
 done
 }
@@ -170,7 +171,7 @@ if [ $RUN_LAN -eq 1 ]; then
     x=0
     while [ -e "$WORKING_DIR/rrd/${INTERFACE0}.rrd" ]
     do
-        /usr/local/bin/rrdtool update $WORKING_DIR/rrd/${INTERFACE0}.rrd N:`netstat -I ${INTERFACE0} -nWb -f link | grep -v Name | awk '{print $8":"$11}'`
+        /usr/local/bin/rrdtool update $WORKING_DIR/rrd/${INTERFACE0}.rrd N:`netstat -I ${INTERFACE0} -nWb -f link | grep -v Name | awk '{print $8":"$11}'` 2>> /tmp/rrdgraphs-error.log
 		x=$((x+1))
         INTERFACE0=`/usr/local/bin/xml sel -t -v "//interfaces/opt${x}/if" /conf/config.xml`
     done
@@ -179,40 +180,41 @@ fi
 # system load averages
 if [ $RUN_AVG -eq 1 ]; then 
     LA=`echo -e "$TOP" | awk '/averages:/ {gsub(",", ""); print $6":"$7":"$8; exit}'`
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu_usage.rrd N:$LA
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu_usage.rrd N:$LA 2>> /tmp/rrdgraphs-error.log
 fi
 
 # CPU temperatures
 if [ $RUN_TMP -eq 1 ]; then 
     T1=`sysctl -q -n dev.cpu.0.temperature | awk '{gsub("C",""); print}'`;      # core 1 temperature
     T2=`sysctl -q -n dev.cpu.1.temperature | awk '{gsub("C",""); print}'`;      # core 2 temperature
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu_temp.rrd N:$T1:$T2
+    T2=0;
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu_temp.rrd N:$T1:$T2 2>> /tmp/rrdgraphs-error.log 2>> /tmp/rrdgraphs-error.log
 fi
 
 # CPU frequency
 if [ $RUN_FRQ -eq 1 ]; then 
     F=`sysctl -n dev.cpu.0.freq | tr -d "\n"`;
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu_freq.rrd N:$F:0
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu_freq.rrd N:$F:0 2>> /tmp/rrdgraphs-error.log
 fi
 
 # Processes
 if [ $RUN_PRO -eq 1 ]; then 
     NP=`echo -e "$TOP" | awk '/processes:/ {gsub("[:,]", ""); print $2" "$1"  "$4" "$3"  "$6" "$5"  "$8" "$7"  "$10" "$9"  "$12" "$11"  "$14" "$13; exit}'`
     CREATE_PVARS ${NP}
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/processes.rrd N:$total:$running:$sleeping:$waiting:$starting:$stopped:$zombie
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/processes.rrd N:$total:$running:$sleeping:$waiting:$starting:$stopped:$zombie 2>> /tmp/rrdgraphs-error.log
 fi
 
 # CPU usage
 if [ $RUN_CPU -eq 1 ]; then 
     CP=`echo -e "$TOP" | awk '/CPU:/ {gsub("[%,]", ""); print $3" "$2" "$5" "$4" "$7" "$6" "$9" "$8" "$11" "$10; exit}'`
     CREATE_CVARS ${CP}
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu.rrd N:$user:$nice:$system:$interrupt:$idle
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/cpu.rrd N:$user:$nice:$system:$interrupt:$idle 2>> /tmp/rrdgraphs-error.log
 fi
 
 # Disk usage
 if [ $RUN_DUS -eq 1 ]; then 
     mount=`df -h | awk '!/jail/ && /\/mnt\// {gsub("/mnt/",""); print $6, $3, $4}' | awk '!/\// {print}'`
-    pool=`zfs list -H -o name,used,available | awk '!/\// {print}'`
+    pool=`zfs list -H -t filesystem -o name,used,available`
     CREATE_MOUNTS_CMD ${mount}
     CREATE_POOLS_CMD ${pool}
 fi
@@ -222,33 +224,36 @@ if [ $RUN_MEM -eq 1 ]; then
     SW=`echo -e "$TOP" | awk '/Swap:/ {gsub("[:,]", ""); gsub("Free", "Swapfree"); print $3" "$2" "$5" "$4" "$7" "$6" "$9" "$8" "$11" "$10; exit}'`
     MM="`echo -e "$TOP" | awk '/Mem:/ {gsub("[:,]", ""); print $3" "$2" "$5" "$4" "$7" "$6" "$9" "$8" "$11" "$10" "$13" "$12; exit}'` ${SW}"
     CREATE_MVARS ${MM}
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/memory.rrd N:$active:$inact:$wired:$cache:$buf:$free:$swaptotal:$swapused
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/memory.rrd N:$active:$inact:$wired:$cache:$buf:$free:$swaptotal:$swapused 2>> /tmp/rrdgraphs-error.log
 fi
 
 # ZFS ARC
 if [ $RUN_ARC -eq 1 ]; then 
     ARC=`echo -e "$TOP" | awk '/ARC:/ {gsub("[:,]", ""); print $3" "$2" "$5" "$4" "$7" "$6" "$9" "$8" "$11" "$10" "$13" "$12; exit}'`
     CREATE_AVARS ${ARC}
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/arc.rrd N:$AVARS
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/arc.rrd N:$AVARS 2>> /tmp/rrdgraphs-error.log
 fi
 
 # UPS
 if [ $RUN_UPS -eq 1 ]; then 
     CMD=`/usr/local/bin/upsc ${UPS_AT}`
     CREATE_UPSVARS ${CMD}
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/ups.rrd N:$charge:$load:$bvoltage:$ivoltage:$runtime:$OL:$OF:$OB:$CG
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/ups.rrd N:$charge:$load:$bvoltage:$ivoltage:$runtime:$OL:$OF:$OB:$CG 2>> /tmp/rrdgraphs-error.log
 fi
 
 # Latency
 if [ $RUN_LAT -eq 1 ]; then 
     PG=`ping $LATENCY_PARAMETERS -S $LATENCY_INTERFACE_IP -c $LATENCY_COUNT $LATENCY_HOST | awk '/round-trip/ {gsub("/", ":"); print $4}'`
     if [ "$PG" == "" ]; then PG="0:0:0:0"; fi
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/latency.rrd N:$PG
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/latency.rrd N:$PG 2>> /tmp/rrdgraphs-error.log
 fi
 
 # Uptime
 if [ $RUN_UPT -eq 1 ]; then 
     UT=`echo -e "$TOP" | awk '/averages:/ {gsub("[,+:]", " "); print $10*24*60+$11*60+$12; exit}'`
-    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/uptime.rrd N:$UT
+    /usr/local/bin/rrdtool update $WORKING_DIR/rrd/uptime.rrd N:$UT 2>> /tmp/rrdgraphs-error.log
 fi
+
+if [ -f /tmp/rrdgraphs-error.log ]; then logger -f /tmp/rrdgraphs-error.log; rm /tmp/rrdgraphs-error.log; exit 1; fi
+
 #date

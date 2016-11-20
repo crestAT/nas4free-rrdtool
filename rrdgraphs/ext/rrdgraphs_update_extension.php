@@ -6,11 +6,7 @@
     All rights reserved.
 
 	Portions of NAS4Free (http://www.nas4free.org).
-	Copyright (c) 2012-2015 The NAS4Free Project <info@nas4free.org>.
-	All rights reserved.
-
-	Portions of freenas (http://www.freenas.org).
-	Copyright (c) 2005-2011 by Olivier Cochard <olivier@freenas.org>.
+	Copyright (c) 2012-2016 The NAS4Free Project <info@nas4free.org>.
 	All rights reserved.
 
 	Redistribution and use in source and binary forms, with or without
@@ -41,7 +37,7 @@ require("auth.inc");
 require("guiconfig.inc");
 
 bindtextdomain("nas4free", "/usr/local/share/locale-rrd");
-$pgtitle = array(gettext("Extensions"), $config['rrdgraphs']['appname']." ".$config['rrdgraphs']['version'], gettext("Extension Maintenance"));
+$pgtitle = array(gettext("Extensions"), $config['rrdgraphs']['appname']." ".$config['rrdgraphs']['version'], gettext("Maintenance"));
 
 if (is_file("{$config['rrdgraphs']['updatefolder']}oneload")) {
     require_once("{$config['rrdgraphs']['updatefolder']}oneload");
@@ -100,6 +96,7 @@ if (isset($_POST['ext_remove']) && $_POST['ext_remove']) {
     	mwexec ("rm -rf /usr/local/www/ext/rrdgraphs");
 	}
     if (is_link("/usr/local/share/locale-rrd")) unlink("/usr/local/share/locale-rrd");
+	mwexec("rmdir -p /usr/local/www/ext");    // to prevent empty extensions menu entry in top GUI menu if there are no other extensions installed
 // remove additional *.php files
 	foreach ( glob( "{$config['rrdgraphs']['rootfolder']}files/*.php" ) as $file ) {
         $file = str_replace("{$config['rrdgraphs']['rootfolder']}files/", "/usr/local/www/", $file);    // trailing backslash !!!

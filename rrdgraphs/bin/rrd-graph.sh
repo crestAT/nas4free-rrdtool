@@ -6,17 +6,17 @@ LAST_UPDATE=`date +"%d.%m.%Y %H\:%M"`
 if [ $BACKGROUND_BLACK -eq 1 ]; then BACKGROUND='-c CANVAS#000000';
 else BACKGROUND=''; fi
 
-# function parameters (mandatory): template_file_name graph_title_string
+# function parameters (mandatory): $1 = template_file_name, $2 = graph_title_string
 CREATE_GRAPHS ()
 {
     GRAPH=${1}
-    GRAPH_NAME="daily";     START_TIME="-1day";     TITLE_STRING="${2} - by day (5 minute averages)"
+    GRAPH_NAME="daily";     START_TIME="-1day";     TITLE_STRING="${2} - by day (5 minute averages)"    EXTENDED_OPTIONS="--zoom ${ZOOM_FACTOR} ${AUTOSCALE}"
     . $WORKING_DIR/templates/${1}.sh
-    GRAPH_NAME="weekly";    START_TIME="-1week";    TITLE_STRING="${2} - by week (30 minute averages)"
+    GRAPH_NAME="weekly";    START_TIME="-1week";    TITLE_STRING="${2} - by week (30 minute averages)"  EXTENDED_OPTIONS=""
     . $WORKING_DIR/templates/${1}.sh
-    GRAPH_NAME="monthly";   START_TIME="-1month";   TITLE_STRING="${2} - by month (2 hour averages)"
+    GRAPH_NAME="monthly";   START_TIME="-1month";   TITLE_STRING="${2} - by month (2 hour averages)"    EXTENDED_OPTIONS=""
     . $WORKING_DIR/templates/${1}.sh
-    GRAPH_NAME="yearly";    START_TIME="-1year";    TITLE_STRING="${2} - by year (12 hour averages)"
+    GRAPH_NAME="yearly";    START_TIME="-1year";    TITLE_STRING="${2} - by year (12 hour averages)"    EXTENDED_OPTIONS=""
     . $WORKING_DIR/templates/${1}.sh
 }
 
@@ -34,13 +34,21 @@ if [ "$1" == "traffic" ] || ( [ "$1" == "" ] && [ "$RUN_LAN" == "1" ] ); then
     done
 fi
 if [ "$1" == "load" ]        || ( [ "$1" == "" ] && [ "$RUN_AVG" == "1" ] ); then CREATE_GRAPHS "load_averages"   "CPU load averages"; fi
-if [ "$1" == "temperature" ] || ( [ "$1" == "" ] && [ "$RUN_TMP" == "1" ] ); then CREATE_GRAPHS "cpu_temperature" "CPU temperature"; fi
+if [ "$1" == "temperature" ] || ( [ "$1" == "" ] && [ "$RUN_TMP" == "1" ] ); then 
+    RRDT_R=`echo -e ${RRDT_RELEASE} | awk '{gsub("[.]",""); print}'`
+    if [ $RRDT_R -ge 160 ]; then LEFT_AXIS_FORMAT="--left-axis-format %2.1lf";
+    else LEFT_AXIS_FORMAT=""; 
+    fi
+    CREATE_GRAPHS "cpu_temperature" "CPU temperature";
+fi
 if [ "$1" == "frequency" ]   || ( [ "$1" == "" ] && [ "$RUN_FRQ" == "1" ] ); then CREATE_GRAPHS "cpu_frequency"   "CPU frequency"; fi
 if [ "$1" == "processes" ]   || ( [ "$1" == "" ] && [ "$RUN_PRO" == "1" ] ); then CREATE_GRAPHS "processes"       "Number of processes"; fi
 if [ "$1" == "cpu" ]         || ( [ "$1" == "" ] && [ "$RUN_CPU" == "1" ] ); then CREATE_GRAPHS "cpu"             "CPU usage"; fi
 if [ "$1" == "disk_usage" ]  || ( [ "$1" == "" ] && [ "$RUN_DUS" == "1" ] ); then 
     if [ "$2" == "" ]; then
-        DA=`df -k | awk '!/jail/ && /\/mnt\// {gsub("/mnt/",""); print $6}' | awk '!/\// {print}'`
+        DA=`df -k | awk '!/jail/ && /\/mnt\// {gsub("/mnt/",""); print $6}' | awk '!/\// {print}'`      # all mountpoints but not jail
+        for DISK_NAME in $DA; do CREATE_GRAPHS "disk_usage" "Disk space usage for ${DISK_NAME}"; done
+        DA=`zfs list -H -t filesystem -o name`                                                          # all ZFS datasets
         for DISK_NAME in $DA; do CREATE_GRAPHS "disk_usage" "Disk space usage for ${DISK_NAME}"; done
     else
         DISK_NAME=$2;
@@ -60,4 +68,4 @@ if [ "$1" == "uptime" ]      || ( [ "$1" == "" ] && [ "$RUN_UPT" == "1" ] ); the
     CREATE_GRAPHS "uptime"  "System uptime"
 fi
 
-exit 0
+if [ -f /tmp/rrdgraphs-error.log ]; then logger -f /tmp/rrdgraphs-error.log; rm /tmp/rrdgraphs-error.log; exit 1; fi
